@@ -19,10 +19,10 @@ function WalletForm({ wallet, onClose }: { wallet?: Wallet; onClose: () => void 
   return <Modal title={wallet ? 'Rename wallet' : 'A new little pocket'} kicker="wallet collection" onClose={onClose}><form onSubmit={submit} className="space-y-5"><Field label="Name"><input required maxLength={100} value={name} onChange={e => setName(e.target.value)} className={inputClass} placeholder="Something you’re saving for" data-testid="input-wallet-name" /></Field><Field label="Target amount" hint="Optional — a soft destination, not a demand."><input type="number" min="0" step="0.01" value={targetAmount} onChange={e => setTargetAmount(e.target.value)} className={inputClass} placeholder="0.00" data-testid="input-wallet-target" /></Field>{error && <p className="rounded-xl bg-destructive/10 p-3 text-[12px] text-destructive" data-testid="status-wallet-error">{error}</p>}<div className="flex justify-end gap-2"><Button variant="outline" onClick={onClose} testId="button-cancel-wallet">Not now</Button><Button type="submit" disabled={create.isPending || update.isPending || !name.trim()} testId="button-save-wallet">{create.isPending || update.isPending ? 'Saving...' : 'Save wallet'}</Button></div></form></Modal>;
 }
 
-function TransactionForm({ transaction, wallets, onClose }: { transaction?: Transaction; wallets: Wallet[]; onClose: () => void }) {
+function TransactionForm({ transaction, wallets, initialWalletId, onClose }: { transaction?: Transaction; wallets: Wallet[]; initialWalletId?: number; onClose: () => void }) {
   const queryClient = useQueryClient();
   const create = useCreateTransaction(), update = useUpdateTransaction();
-  const [walletId, setWalletId] = useState(transaction?.walletId?.toString() ?? '');
+  const [walletId, setWalletId] = useState(transaction?.walletId?.toString() ?? initialWalletId?.toString() ?? '');
   const [type, setType] = useState<TransactionInputType>(transaction?.type ?? 'deposit');
   const [amount, setAmount] = useState(transaction?.amount.toString() ?? '');
   const [merchantOrSource, setMerchantOrSource] = useState(transaction?.merchantOrSource ?? '');

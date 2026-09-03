@@ -3,7 +3,7 @@ import { ArrowUpRight, CalendarDays, ChevronRight, PenLine, Plus, WalletCards } 
 import { useGetDashboardSummary, useListLetters, useListReminders } from '@workspace/api-client-react';
 import { AppShell, AuthGate, Button, EmptyState, PageIntro, Skeleton } from '@/components/app-shell';
 
-const money = (n = 0) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+const money = (n = 0) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
 const date = (v: string) => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
 export default function Dashboard() {
