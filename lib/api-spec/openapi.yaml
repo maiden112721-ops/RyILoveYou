@@ -1,22 +1,25 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Private personal dashboard API for ILOVEYOURY!!!
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: session
+  - name: letters
+  - name: reminders
+  - name: wallets
+  - name: transactions
+  - name: dashboard
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +27,508 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /session:
+    get:
+      operationId: getSession
+      tags: [session]
+      summary: Get the current private session
+      responses:
+        "200":
+          description: Current session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+    post:
+      operationId: login
+      tags: [session]
+      summary: Start a private session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /session/logout:
+    post:
+      operationId: logout
+      tags: [session]
+      summary: End the private session
+      responses:
+        "204":
+          description: Logged out
+  /letters:
+    get:
+      operationId: listLetters
+      tags: [letters]
+      summary: List letters newest first
+      responses:
+        "200":
+          description: Letters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Letter"
+    post:
+      operationId: createLetter
+      tags: [letters]
+      summary: Create a PIN-protected letter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LetterInput"
+      responses:
+        "201":
+          description: Created letter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Letter"
+        "403":
+          description: Letter PIN required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /letters/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateLetter
+      tags: [letters]
+      summary: Edit a letter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LetterUpdate"
+      responses:
+        "200":
+          description: Updated letter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Letter"
+    delete:
+      operationId: deleteLetter
+      tags: [letters]
+      summary: Delete a letter
+      responses:
+        "204":
+          description: Deleted
+  /letters/unlock:
+    post:
+      operationId: unlockLetters
+      tags: [letters]
+      summary: Verify the letter creation PIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PinInput"
+      responses:
+        "204":
+          description: PIN accepted
+        "403":
+          description: PIN rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reminders:
+    get:
+      operationId: listReminders
+      tags: [reminders]
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reminder"
+    post:
+      operationId: createReminder
+      tags: [reminders]
+      summary: Create a reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReminderInput"
+      responses:
+        "201":
+          description: Created reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+  /reminders/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateReminder
+      tags: [reminders]
+      summary: Edit a reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReminderUpdate"
+      responses:
+        "200":
+          description: Updated reminder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reminder"
+    delete:
+      operationId: deleteReminder
+      tags: [reminders]
+      summary: Delete a reminder
+      responses:
+        "204":
+          description: Deleted
+  /wallets:
+    get:
+      operationId: listWallets
+      tags: [wallets]
+      summary: List wallets with calculated balances
+      responses:
+        "200":
+          description: Wallets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wallet"
+    post:
+      operationId: createWallet
+      tags: [wallets]
+      summary: Create a wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletInput"
+      responses:
+        "201":
+          description: Created wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+  /wallets/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateWallet
+      tags: [wallets]
+      summary: Edit a wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletUpdate"
+      responses:
+        "200":
+          description: Updated wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+    delete:
+      operationId: deleteWallet
+      tags: [wallets]
+      summary: Delete a wallet
+      responses:
+        "204":
+          description: Deleted
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List transactions newest first
+      parameters:
+        - name: walletId
+          in: query
+          schema: { type: ["integer", "null"] }
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Create a deposit or withdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Created transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          description: Invalid transaction or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /transactions/{id}:
+    parameters:
+      - $ref: "#/components/parameters/Id"
+    patch:
+      operationId: updateTransaction
+      tags: [transactions]
+      summary: Edit a transaction and recalculate balances
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionUpdate"
+      responses:
+        "200":
+          description: Updated transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+    delete:
+      operationId: deleteTransaction
+      tags: [transactions]
+      summary: Delete a transaction and recalculate balances
+      responses:
+        "204":
+          description: Deleted
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get wallet totals, recent activity, and spending graph data
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: weekly
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
 components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: number, minimum: 1 }
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
+        status: { type: string }
+      required: [status]
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]
+    Session:
+      type: object
+      properties:
+        authenticated: { type: boolean }
+      required: [authenticated]
+    LoginInput:
+      type: object
+      properties:
+        password: { type: string, minLength: 1 }
+      required: [password]
+    PinInput:
+      type: object
+      properties:
+        pin: { type: string, minLength: 1 }
+      required: [pin]
+    Letter:
+      type: object
+      properties:
+        id: { type: number }
+        title: { type: string }
+        content: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, title, content, tags, createdAt, updatedAt]
+    LetterInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 1, maxLength: 180 }
+        content: { type: string, minLength: 1 }
+        tags:
+          type: array
+          items: { type: string, maxLength: 40 }
+      required: [title, content]
+    LetterUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 1, maxLength: 180 }
+        content: { type: string, minLength: 1 }
+        tags:
+          type: array
+          items: { type: string, maxLength: 40 }
+    Reminder:
+      type: object
+      properties:
+        id: { type: number }
+        title: { type: string }
+        description: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        startTime: { type: ["string", "null"] }
+        endTime: { type: ["string", "null"] }
+        color: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, title, description, tags, startDate, endDate, startTime, endTime, color, createdAt, updatedAt]
+    ReminderInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 1, maxLength: 180 }
+        description: { type: string, maxLength: 2000 }
+        tags:
+          type: array
+          items: { type: string, maxLength: 40 }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        startTime: { type: ["string", "null"] }
+        endTime: { type: ["string", "null"] }
+        color: { type: string, pattern: "^#[0-9a-fA-F]{6}$" }
+      required: [title, startDate]
+    ReminderUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ReminderInput"
+    Wallet:
+      type: object
+      properties:
+        id: { type: number }
+        name: { type: string }
+        targetAmount: { type: ["number", "null"] }
+        balance: { type: number }
+        progress: { type: ["number", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, name, targetAmount, balance, progress, createdAt, updatedAt]
+    WalletInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        targetAmount: { type: ["number", "null"], minimum: 0 }
+      required: [name]
+    WalletUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        targetAmount: { type: ["number", "null"], minimum: 0 }
+    Transaction:
+      type: object
+      properties:
+        id: { type: number }
+        walletId: { type: ["number", "null"] }
+        type:
           type: string
-      required:
-        - status
-
+          enum: [deposit, withdrawal]
+        amount: { type: number, exclusiveMinimum: 0 }
+        merchantOrSource: { type: string }
+        description: { type: string }
+        transactionDate: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, walletId, type, amount, merchantOrSource, description, transactionDate, createdAt, updatedAt]
+    TransactionInput:
+      type: object
+      properties:
+        walletId: { type: ["number", "null"] }
+        type:
+          type: string
+          enum: [deposit, withdrawal]
+        amount: { type: number, exclusiveMinimum: 0 }
+        merchantOrSource: { type: string, minLength: 1, maxLength: 180 }
+        description: { type: string, maxLength: 2000 }
+        transactionDate: { type: string, format: date-time }
+      required: [type, amount, merchantOrSource, transactionDate]
+    TransactionUpdate:
+      allOf:
+        - $ref: "#/components/schemas/TransactionInput"
+    SpendingPoint:
+      type: object
+      properties:
+        label: { type: string }
+        amount: { type: number }
+      required: [label, amount]
+    DashboardSummary:
+      type: object
+      properties:
+        totalMoney: { type: number }
+        walletCount: { type: number }
+        spendingTotal: { type: number }
+        spendingPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpendingPoint"
+        recentTransactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+      required: [totalMoney, walletCount, spendingTotal, spendingPoints, recentTransactions]

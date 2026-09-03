@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "ILOVEYOURY!!!"
+description = "A private, warm personal dashboard for love letters, everyday scheduling, and Philippine-peso wallet tracking."
+version = "1.0.0"
+id = "artifacts/iloveyoury"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24951
+
+[services.development]
+run = "pnpm --filter @workspace/iloveyoury run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/iloveyoury", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/iloveyoury/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24951"
+BASE_PATH = "/"
